@@ -1,0 +1,506 @@
+1. Start with the most important idea: what does it mean for AI to "learn"?
+Imagine you give a model thousands of examples:
+Input → correct answer
+For example:
+House size → house price
+1000 sq ft → ₹40 lakh
+1500 sq ft → ₹60 lakh
+2000 sq ft → ₹80 lakh
+The model initially doesn't know the relationship.
+It makes a prediction.
+Then we ask:
+"How wrong were you?"
+That error is represented by a loss function.
+The model then adjusts its internal numbers called parameters/weights.
+It repeats this process thousands or millions of times.
+So:
+Data → Prediction → Loss → Gradients → Parameter update → Prediction again
+That's the fundamental learning loop.
+________________________________________
+2. Neural networks
+A neural network is essentially a collection of mathematical operations arranged in layers.
+A very simplified neuron does:
+inputs → weighted sum → activation → output
+For example:
+x1 ──┐
+     │
+x2 ──┼──> [Neuron] ──> output
+     │
+x3 ──┘
+The neuron has:
+•	weights → importance given to inputs 
+•	bias → adjustable offset 
+•	activation function → introduces non-linearity 
+A simple equation is:
+z = w₁x₁ + w₂x₂ + ... + b
+Then:
+output = activation(z)
+Multiple neurons form a layer.
+Multiple layers form a neural network.
+Why multiple layers?
+Because different layers can learn different levels of patterns.
+For example, in image recognition:
+Pixels
+ ↓
+Edges
+ ↓
+Shapes
+ ↓
+Parts
+ ↓
+Object
+The network itself learns useful representations during training rather than us manually specifying every feature.
+This is one of the major ideas emphasized by 3Blue1Brown's neural-network series. 
+________________________________________
+3. Gradient descent — how the model improves
+Suppose your model predicts:
+Actual = 100
+but predicts:
+Predicted = 70
+There is an error.
+The model needs to change its weights so that next time the prediction moves closer to 100.
+But there may be millions or billions of parameters.
+So the question becomes:
+Which parameters should change, and by how much?
+That's where gradients come in.
+A gradient tells us how the loss changes when a parameter changes.
+Then gradient descent updates parameters approximately like:
+new weight = old weight − learning rate × gradient
+Learning rate
+The learning rate controls the size of the update.
+Too large
+   ↓
+overshooting / unstable learning
+
+Good
+   ↓
+steady improvement
+
+Too small
+   ↓
+very slow learning
+3Blue1Brown's playlist specifically covers cost functions, training and gradient descent. 
+________________________________________
+4. Backpropagation
+This is one of the most important concepts.
+Backpropagation calculates how much each parameter contributed to the error.
+It uses the chain rule from calculus to efficiently calculate gradients throughout the network.
+Think:
+INPUT
+  ↓
+Layer 1
+  ↓
+Layer 2
+  ↓
+Layer 3
+  ↓
+Prediction
+  ↓
+LOSS
+Backpropagation goes in the opposite direction:
+LOSS
+ ↑
+Layer 3
+ ↑
+Layer 2
+ ↑
+Layer 1
+It determines how the loss changes with respect to the parameters.
+Important distinction
+Don't say:
+"Backpropagation updates the weights."
+More precisely:
+Backpropagation calculates gradients.
+The optimizer uses those gradients to update weights.
+That's an excellent interview point.
+________________________________________
+5. What exactly does a model learn?
+This is where AI Foundations becomes interesting.
+A model doesn't store a simple list like:
+Paris = capital of France
+2 + 2 = 4
+Dog = animal
+Instead, information is represented through patterns distributed across parameters and internal representations.
+For a neural network:
+parameters + architecture + learned representations
+work together to produce predictions.
+And importantly:
+A model's behavior is not necessarily the same thing as human understanding.
+A model can produce an excellent answer without possessing human-like understanding or consciousness.
+________________________________________
+6. From normal neural networks to LLMs
+Now let's move to language.
+An LLM = Large Language Model.
+Hugging Face describes LLMs as a powerful subset of NLP models characterized by large scale, extensive training data, and the ability to perform many language tasks. 
+The basic pipeline is:
+Human text
+    ↓
+Tokenization
+    ↓
+Token IDs
+    ↓
+Embeddings
+    ↓
+Transformer
+    ↓
+Probabilities
+    ↓
+Next token
+    ↓
+More tokens
+    ↓
+Text
+Understanding this pipeline is extremely important.
+________________________________________
+7. What is a token?
+An LLM doesn't directly process English sentences like humans do.
+It processes tokens.
+A token can be:
+•	a complete word 
+•	part of a word 
+•	punctuation 
+•	a number 
+•	a special symbol 
+For example, a sentence may conceptually become:
+"I love machine learning"
+        ↓
+["I", " love", " machine", " learning"]
+The exact tokenization depends on the tokenizer.
+The tokens are then converted into numerical IDs.
+For example:
+"I"       → 40
+"love"    → 231
+"machine" → 1842
+Those numbers are then mapped to vectors called embeddings.
+Karpathy's tokenizer lecture emphasizes that tokenization is its own stage, with its own training process and encode/decode operations, and discusses Byte Pair Encoding (BPE). 
+________________________________________
+8. Why can't we just give the whole sentence to the model?
+Because neural networks work with numerical representations.
+So:
+"I love AI"
+becomes something like:
+[Token 1, Token 2, Token 3]
+then:
+[vector 1, vector 2, vector 3]
+These vectors contain numerical representations that the Transformer can manipulate.
+________________________________________
+9. Transformers — the heart of modern LLMs
+The Transformer architecture was introduced in 2017 and became the foundation of many modern language models. 
+The most important idea inside it is:
+Attention
+Suppose:
+"The animal didn't cross the road because it was tired."
+What does "it" refer to?
+The model needs context.
+Attention allows a token to consider other relevant tokens.
+Very simplified:
+The animal didn't cross the road because it was tired
+     ↑                          ↑
+     └──────── attention ───────┘
+The model can learn which pieces of context are important for interpreting each token.
+________________________________________
+10. Self-attention
+In self-attention, tokens in the same sequence interact with one another.
+The famous conceptual components are:
+Query
+What information am I looking for?
+Key
+What information do I contain?
+Value
+What information should I provide?
+The model compares queries and keys to calculate relevance.
+Then it uses those relevance scores to combine values.
+Conceptually:
+Query
+  ↓
+Compare with Keys
+  ↓
+Attention scores
+  ↓
+Softmax
+  ↓
+Weighted Values
+  ↓
+New representation
+The mathematical form is:
+Attention(Q,K,V) = softmax(QKᵀ / √dₖ)V
+You don't need to blindly memorize this yet.
+Understand the story:
+Find relevant tokens → give them more attention → combine their information.
+3Blue1Brown's Transformer and attention lessons focus heavily on visualizing this process. 
+________________________________________
+11. Why "self" attention?
+Because the sequence attends to itself.
+For example:
+I love machine learning
+The representation of "learning" can use information from:
+I
+love
+machine
+learning
+rather than treating each word independently.
+________________________________________
+12. Multi-head attention
+One attention mechanism can learn one type of relationship.
+But language contains many relationships.
+So Transformers use multiple attention heads.
+Conceptually:
+                 ┌── Head 1 → relationship A
+Input → Attention├── Head 2 → relationship B
+                 ├── Head 3 → relationship C
+                 └── Head 4 → relationship D
+                         ↓
+                    Combined
+Different heads can learn different kinds of relationships.
+________________________________________
+13. What else is inside a Transformer?
+A simplified Transformer block contains:
+Input
+ ↓
+Self-Attention
+ ↓
+Residual connection
+ ↓
+Layer Normalization
+ ↓
+Feed-Forward Network
+ ↓
+Residual connection
+ ↓
+Layer Normalization
+ ↓
+Output
+Important components:
+Self-attention
+Handles relationships between tokens.
+Feed-forward network / MLP
+Performs additional nonlinear transformations on representations.
+Residual connections
+Help information and gradients flow through deep networks.
+Layer normalization
+Helps stabilize the network.
+Positional information
+Provides information about token order because attention itself doesn't inherently encode sequence position.
+Hugging Face's Transformer explanation covers these architectural ideas and distinguishes encoder-only, decoder-only and encoder-decoder systems. 
+________________________________________
+14. GPT — how does it actually learn language?
+This is one of the most beautiful ideas.
+GPT-style models are generally decoder-only Transformers.
+Their basic training task is:
+Predict the next token.
+Suppose the text is:
+The sky is
+The model predicts probabilities:
+blue      0.70
+beautiful 0.10
+dark      0.06
+...
+Then the actual next token is compared with the prediction.
+The loss tells the model how wrong it was.
+Then its parameters are updated.
+Next example.
+Next batch.
+Millions/billions of tokens.
+Repeated again and again.
+Eventually the model becomes extremely good at predicting language patterns.
+Karpathy's GPT-from-scratch lecture demonstrates this progression starting with a simple bigram model and moving toward self-attention, multi-head attention and a complete Transformer. 
+________________________________________
+15. Why can next-token prediction produce surprisingly capable models?
+Because predicting the next token requires learning many patterns.
+To predict:
+"The capital of France is ___"
+the model benefits from learning relationships involving:
+•	language 
+•	syntax 
+•	facts 
+•	context 
+•	common phrases 
+•	concepts 
+•	relationships between entities 
+So the training objective is simple:
+predict the next token
+but the internal patterns needed to perform that task can become extremely rich.
+________________________________________
+16. Pretraining vs fine-tuning
+Pretraining
+Start with randomly initialized parameters and train on a huge corpus.
+Huge dataset
+     ↓
+Pretraining
+     ↓
+General pretrained model
+This can require enormous amounts of compute and data.
+Fine-tuning
+Start with an existing pretrained model.
+Pretrained model
+       ↓
+Task-specific data
+       ↓
+Fine-tuning
+       ↓
+Specialized model
+For example:
+A general language model
+↓
+medical-domain training data
+↓
+medical-domain model
+Fine-tuning is much cheaper than training from scratch because the model already has useful learned representations. 
+________________________________________
+17. What happens when you type a prompt?
+Suppose you ask:
+"Explain photosynthesis."
+The system roughly does:
+Prompt
+ ↓
+Tokenizer
+ ↓
+Token IDs
+ ↓
+Embeddings
+ ↓
+Transformer
+ ↓
+Logits
+ ↓
+Probabilities
+ ↓
+Select next token
+ ↓
+Add token to context
+ ↓
+Predict next token
+ ↓
+Repeat
+The model generates the response autoregressively.
+That means:
+Each newly generated token becomes part of the context used to generate the next token.
+Hugging Face describes inference as this two-phase process:
+Prefill → Decode
+where the prompt is processed first, followed by sequential token generation. 
+________________________________________
+18. Does the model "look up" every answer?
+Not necessarily.
+A pretrained language model's parameters contain learned statistical representations from training.
+Without external retrieval/tools, it generally isn't performing a database search for every answer.
+That's one reason it can answer instantly but also sometimes produce incorrect information.
+________________________________________
+19. What AI CAN do
+AI models can be extremely good at:
+Pattern recognition
+Images, text, speech, structured data, etc.
+Classification
+Spam/not spam, sentiment, object categories, etc.
+Prediction
+Prices, probabilities, risks, next tokens, etc.
+Generation
+Text, code, images, audio, video, depending on the model.
+Transformation
+Translation, summarization, rewriting, extraction.
+Representation learning
+Learning useful numerical representations from complex data.
+Automation
+When integrated into a larger software system, AI can automate parts of workflows.
+Hugging Face's Transformers ecosystem demonstrates models covering language, vision, audio, video and multimodal tasks. 
+________________________________________
+20. What AI CANNOT reliably do
+This is equally important as knowing what AI can do.
+AI does not guarantee:
+100% factual accuracy
+A model can confidently produce something false.
+Perfect reasoning
+A model can solve one difficult problem and fail on a seemingly simple variation.
+Perfect mathematics
+LLMs can make arithmetic or logical mistakes.
+Perfect current knowledge
+Without an appropriate current information source, a model's knowledge can be outdated.
+Zero bias
+Models learn from data, and data can contain biases.
+Human-level understanding
+Good language generation doesn't automatically prove human-like understanding or consciousness.
+Guaranteed consistency
+The same question can sometimes produce different answers depending on generation settings/context.
+Hugging Face specifically identifies hallucinations and bias as important limitations of pretrained models. 
+________________________________________
+21. Hallucination
+This is a must-know AI interview concept.
+A hallucination occurs when a model generates an answer that sounds plausible but is unsupported or incorrect.
+For example:
+"According to a 2024 research paper by XYZ..."
+The paper might not even exist.
+Why?
+Because the fundamental language-generation objective is not:
+"Always tell the truth."
+It is closer to:
+"Generate a likely continuation given the context and learned parameters."
+That's a huge distinction.
+________________________________________
+22. Why does hallucination happen?
+Possible causes include:
+•	incomplete training information 
+•	noisy training data 
+•	ambiguous prompts 
+•	insufficient context 
+•	distribution shift 
+•	imperfect learned representations 
+•	generation randomness 
+•	no built-in guarantee of truth 
+Therefore:
+Fluent ≠ factual
+This is one of the most important sentences to remember.
+________________________________________
+23. Bias
+If training data contains biased patterns, the model may reproduce them.
+The Hugging Face course demonstrates how pretrained models can reproduce problematic associations even when their training data appears relatively neutral. 
+Therefore:
+Data quality
+      ↓
+Learned patterns
+      ↓
+Model behavior
+Poor or biased data can contribute to problematic outputs.
+And fine-tuning doesn't automatically erase every underlying bias.
+________________________________________
+24. AI isn't magic
+A very useful mental model is:
+AI = mathematics + data + computation + optimization + architecture
+Not magic.
+A model's impressive behavior emerges from:
+•	architecture 
+•	training data 
+•	parameters 
+•	optimization 
+•	scale 
+•	context 
+•	fine-tuning/alignment 
+•	inference strategy 
+•	sometimes external tools/retrieval 
+________________________________________
+25. Hugging Face and nanoGPT — why you were given these links
+These aren't just random GitHub links.
+Hugging Face Transformers
+It's an ecosystem/library for working with pretrained Transformer models.
+It provides a unified API and supports models across language, vision, audio, video and multimodal tasks. 
+nanoGPT
+Karpathy's nanoGPT is deliberately small and readable so you can understand GPT training/fine-tuning internals without dealing with a huge production codebase.
+The repository includes training, fine-tuning and sampling workflows. 
+So your learning path is essentially:
+3Blue1Brown
+     ↓
+Understand the mathematics/intuitions
+     ↓
+Karpathy
+     ↓
+Understand how GPT is actually constructed
+     ↓
+Hugging Face
+     ↓
+Understand how industry models are used
+That's a very good combination for AI Foundations.
+________________________________________
+26. The complete picture you should remember
+If your mentor suddenly says:
+"Explain how an LLM works."
+You should be able to say:
+An LLM is a large neural network, commonly based on the Transformer architecture, trained on large amounts of data. Text is first converted into tokens, which are mapped to numerical embeddings. During pretraining, the model learns parameters by predicting tokens—often the next token in causal language modeling—and minimizing a loss using backpropagation and optimization. Transformers use self-attention to allow tokens to incorporate relevant contextual information. After pretraining, models can be fine-tuned or instruction-tuned for particular behaviors or tasks. During inference, the prompt is tokenized and processed, and the model generates output autoregressively by repeatedly predicting the next token. Despite their capabilities, LLMs can hallucinate, reproduce bias, lack required information, and make reasoning or factual errors, so important outputs need appropriate evaluation and verification.
+
